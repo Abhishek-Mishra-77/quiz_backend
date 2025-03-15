@@ -9,7 +9,7 @@ async function createInitialUser() {
     try {
         const email = process.env.INIT_USER;
         const password = process.env.INIT_PASS
-        const existingUser = await User.findOne({ email });
+        const existingUser = await User.findOne({ email : email });
         if (!existingUser) {
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(password, salt);

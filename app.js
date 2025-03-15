@@ -8,12 +8,16 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT
 
-app.listen(PORT, async () => {
-    try {
-        await sequelize.authenticate();
+
+sequelize
+    .sync({ force: !true })
+    .then(async () => {
         await createInitialUser();
-        console.log(`Server running on http://localhost:${PORT}`);
-    } catch (error) {
-        console.error("Error starting server:", error);
-    }
-});
+        // Start the server
+        app.listen(process.env.PORT, () => {
+            console.log(`Server is running on port ${process.env.PORT}`);
+        });
+    })
+    .catch((err) => {
+        console.error("Unable to connect to the database:", err);
+    });
