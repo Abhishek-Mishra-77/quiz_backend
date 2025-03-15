@@ -23,7 +23,7 @@ const createUser = async (req, res) => {
             name,
             email,
             password: hashedPassword,
-            role: role || "user",
+            role: role || "learner",
         });
 
         res.status(201).json({
@@ -96,6 +96,7 @@ const loginUser = async (req, res) => {
         if (!email || !password) return res.status(400).json({ message: "Email and password are required" });
 
         const user = await User.findOne({ where: { email } });
+
         if (!user) return res.status(404).json({ message: "Invalid email or password" });
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
