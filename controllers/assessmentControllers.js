@@ -49,7 +49,7 @@ const publishAssessment = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const assessment = await Assessment.findByPk(id);
+        const assessment = await Assessment.findOne({ where: { user_id: id } });
         if (!assessment) return res.status(404).json({ message: "Assessment not found" });
 
         const publishedAssessment = await assessment.update({
@@ -66,7 +66,12 @@ const publishAssessment = async (req, res) => {
 
 const getAllAssessments = async (req, res) => {
     try {
-        const assessments = await Assessment.findAll();
+        const assessments = await Assessment.findAll({
+            include: {
+                model: User,
+                attributes: ['name', 'email']
+            }
+        });
         res.status(200).json(assessments);
     } catch (error) {
         console.error("Error fetching assessments:", error);
@@ -74,4 +79,32 @@ const getAllAssessments = async (req, res) => {
     }
 };
 
-export { createAssessment, updateAssessment, publishAssessment , getAllAssessments};
+
+const getPublishAssessmentUser = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const assessment = await Assessment.findOne({
+            where: { user_id: id, published: true },
+            include: [
+                {
+                    model: User,
+                    attributes: ['name', 'email'],
+                },
+            ],
+        });
+
+        if (!assessment) {
+            return res.status(404).json({ message: "Assessment not found" });
+        }
+
+        res.status(200).json(assessment);
+    } catch (error) {
+        console.error("Error fetching published report:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+
+
+export { createAssessment, updateAssessment, publishAssessment, getAllAssessments, getPublishAssessmentUser };
